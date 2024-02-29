@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { FormControlLabel, FormGroup } from '@mui/material';
 
 
-const AddUser = () => {
+const AddUser = ({ handleCancelAddUser }) => {
     
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -18,11 +18,9 @@ const AddUser = () => {
 
     }
 
-    const handleCancel = () => {
-
-    }
 
   return (
+    
     <Grid container spacing={2}>
         <Grid item xs={4}>
             <TextField
@@ -62,7 +60,7 @@ const AddUser = () => {
                 margin="normal"
                 name="groups"
                 label="Groups"
-                type="groups"
+                type="text"
                 id="groups"
                 onChange={(e) => setGroups(e.target.value)}
             />
@@ -76,7 +74,7 @@ const AddUser = () => {
             <Button variant="contained" color="primary" onClick={(e) => handleConfirm(e)}>
                 Confirm
             </Button>
-            <Button variant="contained" color="red" onClick={(e) => handleCancel(e)}>
+            <Button variant="contained" color="secondary" onClick={handleCancelAddUser}>
                 Cancel
             </Button>
         </Grid>

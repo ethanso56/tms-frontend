@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../api/baseapi'
 import useAuth from '../hooks/useAuth';
 import AddUser from './AddUser';
-
+import CreateGroup from './CreateGroup';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,6 +12,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+
 
 // function createData(name, calories, fat, carbs, protein) {
 //   return { name, calories, fat, carbs, protein };
@@ -26,10 +29,15 @@ import Box from '@mui/material/Box';
 // ];
 
 
-
-
-const AdminUserManagementPage = () => {
+const AdminUserManagementPage = ({ addFlashMessage }) => {
   const [data, setData] = useState(null);
+  const [addUser, setAddUser] = useState(false)
+  const [createGroup, setCreateGroup] = useState(false)
+  const [editRows, setEditRows] = useState([])  
+  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+  const [groups, setGroups] = useState('')
+
   const { auth } = useAuth()
 
   const fetchData = async () => {
@@ -68,10 +76,33 @@ const AdminUserManagementPage = () => {
     console.log(r)
   }
 
-  const handleEdit = (r) => {
-    console.log(r)
+  const handleEdit = (index) => {
+    const newEditRows = [...editRows];
+    newEditRows[index] = true;
+    setEditRows(newEditRows);
   }
 
+  const handleSaveEdit = (row, index) => {
+    const newEditRows = [...editRows];
+    newEditRows[index] = false;
+    setEditRows(newEditRows);
+  }
+
+  const handleAddUser = () => {
+    setAddUser(true)
+  }
+
+  const handleCreateGroup = () => {
+    setCreateGroup(true)
+  }
+
+  const handleCancelAddUser = () => {
+    setAddUser(false)
+  }
+  
+  const handleCancelCreateGroup = () => {
+    setCreateGroup(false)
+  }
 
   return (
     <>
@@ -84,8 +115,17 @@ const AdminUserManagementPage = () => {
         }}
       >
         <h1>User Management</h1>
-        <Button color="inherit">Add User</Button>
-        <Button color="inherit">Create Group</Button>
+        <div>
+            {addUser && <AddUser handleCancelAddUser={handleCancelAddUser} />}
+            {createGroup && <CreateGroup handleCancelCreateGroup={handleCancelCreateGroup} addFlashMessage={addFlashMessage} />}
+            {!addUser && !createGroup && (
+                <div>
+                    <Button color="primary" onClick={handleAddUser}>Add User</Button>
+                    <Button color="primary" onClick={handleCreateGroup}>Create Group</Button>
+                </div>
+            )}
+        </div>
+        
       </Box>
      
       <TableContainer component={Paper}>
@@ -101,7 +141,7 @@ const AdminUserManagementPage = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <TableRow
               key={row.username}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -109,17 +149,78 @@ const AdminUserManagementPage = () => {
               <TableCell component="th" scope="row">
                 {row.username}
               </TableCell>
-              <TableCell align="right">---</TableCell>
-              <TableCell align="right">{row.email}</TableCell>
-              <TableCell align="right">{row.groups}</TableCell>
+              {
+                editRows[index] ? 
+                <>
+                  <TableCell align="right">
+                    <TextField
+                      margin="normal"
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                      onChange={(e) => setPassword(e.target.value)}
+                    ></TextField>
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      margin="normal"
+                      name="email"
+                      label="email"
+                      type="email"
+                      id="email"
+                      defaultValue={row.email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    ></TextField>
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      margin="normal"
+                      name="group"
+                      label="Group name"
+                      type="text"
+                      id="group"
+                      defaultValue={row.groups}
+                      onChange={(e) => setGroups(e.target.value)}
+                    ></TextField>
+
+                    {/* <Autocomplete
+                      multiple
+                      id="tags-standard"
+                      options={groups}
+                      getOptionLabel={(option) => option.title}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="standard"
+                          label="Multiple values"
+                          placeholder="Groups"
+                        />
+                      )}
+                    /> */}
+                  </TableCell>
+                </>
+                :  
+                <>
+                  <TableCell align="right">---</TableCell>
+                  <TableCell align="right">{row.email}</TableCell>
+                  <TableCell align="right">{row.groups}</TableCell>
+                </>
+              }
+
               <TableCell align="right">{row.status}</TableCell>
               <TableCell align="right">
                 <Button variant="contained" color="primary" onClick={() => handleStatus(row)}>
                   Enable
                 </Button>
-                <Button variant="contained" color="primary" onClick={() => handleEdit(row)}>
-                  Edit
-                </Button>
+
+                { editRows[index] ? <Button variant="contained" color="primary" onClick={() => handleSaveEdit(row, index)}>
+                    Save
+                  </Button>
+                    : <Button variant="contained" color="primary" onClick={() => handleEdit(index)}>
+                    Edit
+                  </Button>             
+                }         
               </TableCell>
             </TableRow>
           ))}
