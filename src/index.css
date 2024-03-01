@@ -30,7 +30,7 @@ code {
   color: #333;
   padding: 10px 20px;
   border-radius: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: fadeOut 3s forwards; /* Apply the animation */
 }
@@ -474,7 +474,7 @@ textarea.tall-textarea {
   display: none;
   position: absolute;
   z-index: 999;
-  top: 38px;
+  top: 3px;
   left: 50%;
   transform: translateX(-50%);
   -moz-animation: floatingAlert ease-in 5s forwards;

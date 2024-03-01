@@ -16,44 +16,42 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 
-// function createData(name, calories, fat, carbs, protein) {
-//   return { name, calories, fat, carbs, protein };
-// }
-
-// const rows = [
-//   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-//   createData('Eclair', 262, 16.0, 24, 6.0),
-//   createData('Cupcake', 305, 3.7, 67, 4.3),
-//   createData('Gingerbread', 356, 16.0, 49, 3.9),
-// ];
-
-
 const AdminUserManagementPage = ({ addFlashMessage }) => {
-  const [data, setData] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [groupData, setGroupData] = useState(null)
   const [addUser, setAddUser] = useState(false)
   const [createGroup, setCreateGroup] = useState(false)
   const [editRows, setEditRows] = useState([])  
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
   const [groups, setGroups] = useState('')
+  const [dataChanged, setDataChanged] = useState(false)
 
   const { auth } = useAuth()
 
   const fetchData = async () => {
-
-    // get data from backend
     const accessToken = auth?.accessToken
   
     try {
-      const res = await api.get('/admin/all_users', {
+      const resUsers = await api.get('/admin/all_users', {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
       })
       console.log("retrived user data")
-      console.log(res.data)
-      setData(res.data)
+      console.log(resUsers.data)
+      setUserData(resUsers.data)
+
+      const resGroup = await api.get('/admin/all_groups', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      console.log("retrived group object data")
+      console.log(resGroup.data)
+      setGroupData(resGroup.data)
+
+      setDataChanged(false)
   
     } catch (err) {
       console.log(err.response.data.message)
@@ -64,16 +62,43 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [dataChanged])
 
-  if (!data) {
+  if (!userData) {
     return <div>Loading...</div>
   }
 
-  const rows = data
+  const rows = userData
 
-  const handleStatus = (r) => {
-    console.log(r)
+  const handleStatusToggle = async (row) => {
+
+    const accessToken = auth?.accessToken
+
+    const userObj = {
+      username: row.username,
+      status: !row.status
+    }
+
+    try {
+      const res = await api.patch('/admin/edit_user_status', userObj, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      addFlashMessage("Edited user status")
+      setDataChanged(true)
+      console.log("edited user")
+      console.log(res.data)
+    } catch (err) {
+      console.log(err.response.data.message)
+      console.log(err.response.status)
+      console.log(err.response.headers)
+      if (!err?.response) {
+        addFlashMessage('No Server Response')
+      } else {
+        addFlashMessage("Error editing user status")
+      }   
+    }
   }
 
   const handleEdit = (index) => {
@@ -82,10 +107,74 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
     setEditRows(newEditRows);
   }
 
-  const handleSaveEdit = (row, index) => {
-    const newEditRows = [...editRows];
-    newEditRows[index] = false;
-    setEditRows(newEditRows);
+  const handleSaveEdit = async (row, index) => {
+
+    const accessToken = auth?.accessToken
+
+    let userObj = {}
+
+    if (password == "") {
+      userObj = {
+        username: row.username,
+        password: null,
+        email: email,
+        groups: groups,
+      }
+    } else {
+      userObj = {
+        username: row.username,
+        password: password,
+        email: email,
+        groups: groups,
+      }
+    }
+
+    try {
+     
+      const res = await api.patch('/admin/edit_user', userObj, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      addFlashMessage("Edited user")
+      setDataChanged(true)
+      setPassword('')
+      setEmail('')
+      setGroups('')
+      console.log("edited user")
+      console.log(res.data)
+      
+      // change display back to normal
+      const newEditRows = [...editRows];
+      newEditRows[index] = false;
+      setEditRows(newEditRows);
+  
+    } catch (err) {
+      console.log(err.response.data.message)
+      console.log(err.response.status)
+      console.log(err.response.headers)
+      if (!err?.response) {
+        addFlashMessage('No Server Response')
+      }   else if (err.response?.status === 409) {
+          addFlashMessage("Password or Email does not meet validation.")
+      }   else {
+          addFlashMessage("Error editing user")
+      }   
+    }
+  }
+
+  const handleSelectedGroups = (e, groupArr) => {
+    // value is an array of groupnames
+    console.log(groupArr)
+    const groupNames = groupArr.map(group => group.groupname)
+    setGroups(groupNames.join(', '))
+  }
+
+  const handleDefaultGroupsValue = (groups) => {
+    setGroups(groups)
+    return (groups.split(',').map(groupName => {
+      return { groupname: groupName }
+    }))
   }
 
   const handleAddUser = () => {
@@ -116,8 +205,8 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       >
         <h1>User Management</h1>
         <div>
-            {addUser && <AddUser handleCancelAddUser={handleCancelAddUser} />}
-            {createGroup && <CreateGroup handleCancelCreateGroup={handleCancelCreateGroup} addFlashMessage={addFlashMessage} />}
+            {addUser && <AddUser setDataChanged={setDataChanged} handleCancelAddUser={handleCancelAddUser} addFlashMessage={addFlashMessage} />}
+            {createGroup && <CreateGroup setDataChanged={setDataChanged} handleCancelCreateGroup={handleCancelCreateGroup} addFlashMessage={addFlashMessage} />}
             {!addUser && !createGroup && (
                 <div>
                     <Button color="primary" onClick={handleAddUser}>Add User</Button>
@@ -174,21 +263,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
                     ></TextField>
                   </TableCell>
                   <TableCell align="right">
-                    <TextField
-                      margin="normal"
-                      name="group"
-                      label="Group name"
-                      type="text"
-                      id="group"
-                      defaultValue={row.groups}
-                      onChange={(e) => setGroups(e.target.value)}
-                    ></TextField>
-
-                    {/* <Autocomplete
+              
+                    <Autocomplete
                       multiple
                       id="tags-standard"
-                      options={groups}
-                      getOptionLabel={(option) => option.title}
+                      options={groupData}
+                      getOptionLabel={(group) => group.groupname}
+                      defaultValue={() => handleDefaultGroupsValue(row.groups)}
+                      onChange={handleSelectedGroups}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -197,7 +279,7 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
                           placeholder="Groups"
                         />
                       )}
-                    /> */}
+                    />
                   </TableCell>
                 </>
                 :  
@@ -208,10 +290,10 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
                 </>
               }
 
-              <TableCell align="right">{row.status}</TableCell>
+              <TableCell align="right">{row.status ? "Active" : "Disabled"}</TableCell>
               <TableCell align="right">
-                <Button variant="contained" color="primary" onClick={() => handleStatus(row)}>
-                  Enable
+                <Button variant="contained" color="primary" onClick={() => handleStatusToggle(row)}>
+                  {row.status ? "Disable" : "Enable"}
                 </Button>
 
                 { editRows[index] ? <Button variant="contained" color="primary" onClick={() => handleSaveEdit(row, index)}>

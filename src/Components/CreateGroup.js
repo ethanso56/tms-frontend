@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
-const CreateGroup = ({ handleCancelCreateGroup, addFlashMessage }) => {
+const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage }) => {
 
     const { auth } = useAuth()
 
@@ -28,14 +28,24 @@ const CreateGroup = ({ handleCancelCreateGroup, addFlashMessage }) => {
                 }
               })
             console.log("Created group")
+            setDataChanged(true)
             addFlashMessage("Created group")
+            handleCancelCreateGroup()
             console.log(res.data)
             setGroup('')
         } catch (err) {
             console.log(err.response.data.message)
             console.log(err.response.status)
             console.log(err.response.headers)
-        }
+
+            if (!err?.response) {
+                addFlashMessage('No Server Response')
+            }   else if (err.response?.status === 409) {
+                addFlashMessage("Groupname cannot be more than 50 characters.")
+            }   else {
+                addFlashMessage("Error creating group")
+            }   
+        }     
     }
 
   return (
