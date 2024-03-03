@@ -1,10 +1,9 @@
 import React from 'react'
+import { Navigate } from 'react-router-dom'
 
-const HomePage = () => {
+const HomePage = ({ loggedIn }) => {
   return (
-    <main>
-      
-    </main>
+    loggedIn ? <main /> : <Navigate to="/login" />
   )
 }
 

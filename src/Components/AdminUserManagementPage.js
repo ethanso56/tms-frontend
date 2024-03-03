@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import api from '../api/baseapi'
 import useAuth from '../hooks/useAuth';
 import AddUser from './AddUser';
@@ -17,11 +17,15 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 
 const AdminUserManagementPage = ({ addFlashMessage }) => {
+
   const [userData, setUserData] = useState(null);
   const [groupData, setGroupData] = useState(null)
+
   const [addUser, setAddUser] = useState(false)
   const [createGroup, setCreateGroup] = useState(false)
+  
   const [editRows, setEditRows] = useState([])  
+  // state being edited
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
   const [groups, setGroups] = useState('')
@@ -29,7 +33,7 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
 
   const { auth } = useAuth()
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const accessToken = auth?.accessToken
   
     try {
@@ -58,11 +62,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       console.log(err.response.status)
       console.log(err.response.headers)
     }
-  }
+  }, [auth?.accessToken]) 
 
+  // after refresh still show data
+  fetchData()
+  
   useEffect(() => {
     fetchData()
-  }, [dataChanged])
+  }, [dataChanged, fetchData])
 
   if (!userData) {
     return <div>Loading...</div>
@@ -113,7 +120,7 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
 
     let userObj = {}
 
-    if (password == "") {
+    if (password === "") {
       userObj = {
         username: row.username,
         password: null,
