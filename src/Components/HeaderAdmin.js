@@ -14,7 +14,6 @@ const HeaderAdmin = () => {
         <Button color="inherit">Dashboard</Button>
         <Button onClick={handleUserManagementButton} color="inherit">User management</Button>
         <Button color="inherit">Admin</Button>
-        <Button color="inherit">Logout</Button>
     </div>
   )
 }

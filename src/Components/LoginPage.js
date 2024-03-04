@@ -16,7 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const defaultTheme = createTheme();
 
 
-const LoginPage = () => {
+const LoginPage = ({ loggedIn, setLoggedIn }) => {
     const errRef = useRef();
 
     const { setAuth } = useAuth()
@@ -24,7 +24,7 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errMsg, setErrMsg] = useState('');
-    const [loggedIn, setLoggedIn] = useState(false); 
+    // const [loggedIn, setLoggedIn] = useState(false); 
 
     useEffect(() => {
         setErrMsg('');
