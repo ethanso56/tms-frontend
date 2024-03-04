@@ -26,7 +26,7 @@ const App = () => {
     
             <Route exact path="/" element={<HomePage />} />
            
-            <Route path="/user/edit_user" element={<UpdateUserProfilePage />} />
+            <Route path="/user/edit_user" element={<UpdateUserProfilePage addFlashMessage={addFlashMessage} />} />
 
             <Route path="/admin/all_users" element={<AdminUserManagementPage addFlashMessage={addFlashMessage} />} />
         
