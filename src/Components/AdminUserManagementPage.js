@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import api from '../api/baseapi'
-import useAuth from '../hooks/useAuth';
+import axios from 'axios'
+
+// import useAuth from '../hooks/useAuth';
 import AddUser from './AddUser';
 import CreateGroup from './CreateGroup';
 import Button from '@mui/material/Button';
@@ -31,26 +33,33 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
   const [groups, setGroups] = useState('')
   const [dataChanged, setDataChanged] = useState(false)
 
-  const { auth } = useAuth()
+  // const { auth } = useAuth()
+  axios.defaults.withCredentials = true
 
-  const fetchData = useCallback(async () => {
-    const accessToken = auth?.accessToken
+  const fetchData = async () => {
+    // const accessToken = auth?.accessToken
   
     try {
-      const resUsers = await api.get('/admin/all_users', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      const resUsers = await api.get('/admin/all_users', { withCredentials: true })
+
+      // const resUsers = await api.get('/admin/all_users', {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }
+      // })
+
       console.log("retrived user data")
       console.log(resUsers.data)
       setUserData(resUsers.data)
 
-      const resGroup = await api.get('/admin/all_groups', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      const resGroup = await api.get('/admin/all_groups')
+
+      // const resGroup = await api.get('/admin/all_groups', {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }
+      // })
+
       console.log("retrived group object data")
       console.log(resGroup.data)
       setGroupData(resGroup.data)
@@ -62,14 +71,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       console.log(err.response.status)
       console.log(err.response.headers)
     }
-  }, [auth?.accessToken]) 
+  }
 
   // after refresh still show data
-  fetchData()
+  // fetchData()
   
   useEffect(() => {
     fetchData()
-  }, [dataChanged, fetchData])
+  }, [dataChanged])
 
   if (!userData) {
     return <div>Loading...</div>
@@ -79,7 +88,7 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
 
   const handleStatusToggle = async (row) => {
 
-    const accessToken = auth?.accessToken
+    // const accessToken = auth?.accessToken
 
     const userObj = {
       username: row.username,
@@ -87,11 +96,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
     }
 
     try {
-      const res = await api.patch('/admin/edit_user_status', userObj, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      const res = await api.patch('/admin/edit_user_status', userObj)
+
+      // const res = await api.patch('/admin/edit_user_status', userObj, {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }
+      // })
+
       addFlashMessage("Edited user status")
       setDataChanged(true)
       console.log("edited user")
@@ -108,15 +120,17 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
     }
   }
 
-  const handleEdit = (index) => {
-    const newEditRows = [...editRows];
-    newEditRows[index] = true;
-    setEditRows(newEditRows);
+  const handleEdit = (row, index) => {
+    const newEditRows = [...editRows]
+    newEditRows[index] = true
+    setEmail(row.email)
+    setGroups(row.groups)
+    setEditRows(newEditRows)
   }
 
   const handleSaveEdit = async (row, index) => {
 
-    const accessToken = auth?.accessToken
+    // const accessToken = auth?.accessToken
 
     let userObj = {}
 
@@ -138,11 +152,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
 
     try {
      
-      const res = await api.patch('/admin/edit_user', userObj, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      const res = await api.patch('/admin/edit_user', userObj)
+
+      // const res = await api.patch('/admin/edit_user', userObj, {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }
+      // })
+
       addFlashMessage("Edited user")
       setDataChanged(true)
       setPassword('')
@@ -177,12 +194,22 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
     setGroups(groupNames.join(', '))
   }
 
-  const handleDefaultGroupsValue = (groups) => {
-    setGroups(groups)
-    return (groups.split(',').map(groupName => {
-      return { groupname: groupName }
-    }))
-  }
+  // const handleDefaultEmailValue = (email) => {
+  //   setEmail(email)
+  //   return email
+  // }
+
+  // const handleDefaultGroupsValue = (groups) => {
+  //   setGroups(groups)
+  //   return (groups.split(',').map(groupName => {
+  //     return { groupname: groupName }
+  //   }))
+  // }
+
+  // const setDefaultEmailGroupsVals = (email, groups) => {
+  //   setEmail(email)
+  //   setGroups(groups)
+  // }
 
   const handleAddUser = () => {
     setAddUser(true)
@@ -276,7 +303,9 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
                       id="tags-standard"
                       options={groupData}
                       getOptionLabel={(group) => group.groupname}
-                      defaultValue={() => handleDefaultGroupsValue(row.groups)}
+                      defaultValue={(row.groups.split(',').map(groupName => {
+                        return { groupname: groupName }
+                      }))}
                       onChange={handleSelectedGroups}
                       renderInput={(params) => (
                         <TextField
@@ -306,7 +335,7 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
                 { editRows[index] ? <Button variant="contained" color="primary" onClick={() => handleSaveEdit(row, index)}>
                     Save
                   </Button>
-                    : <Button variant="contained" color="primary" onClick={() => handleEdit(index)}>
+                    : <Button variant="contained" color="primary" onClick={() => handleEdit(row, index)}>
                     Edit
                   </Button>             
                 }         

@@ -1,7 +1,9 @@
 import React from 'react'
 import { useState } from 'react';
 import api from '../api/baseapi'
-import useAuth from '../hooks/useAuth';
+import axios from 'axios'
+
+// import useAuth from '../hooks/useAuth';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
@@ -11,8 +13,9 @@ import { FormControlLabel, FormGroup } from '@mui/material';
 
 const AddUser = ({ setDataChanged, handleCancelAddUser, addFlashMessage }) => {
 
-    const { auth } = useAuth()
-    
+    // const { auth } = useAuth()
+    axios.defaults.withCredentials = true
+
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -20,7 +23,7 @@ const AddUser = ({ setDataChanged, handleCancelAddUser, addFlashMessage }) => {
     const [status, setStatus] = useState(true)
 
     const handleConfirm = async () => {
-        const accessToken = auth?.accessToken
+        // const accessToken = auth?.accessToken
 
         const userObj = {
             username: username,
@@ -31,12 +34,14 @@ const AddUser = ({ setDataChanged, handleCancelAddUser, addFlashMessage }) => {
         }
 
         try {
-            const res = await api.post('/admin/create_User', userObj, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                }
-              })
+            const res = await api.post('/admin/create_User', userObj)
+
+            // const res = await api.post('/admin/create_User', userObj, {
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${accessToken}`
+            //     }
+            // })
             console.log("Created user")
             console.log(res.data)
             addFlashMessage("Created user")

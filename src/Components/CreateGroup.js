@@ -1,7 +1,9 @@
 import React from 'react'
 import { useState } from 'react';
 import api from '../api/baseapi'
-import useAuth from '../hooks/useAuth';
+import axios from 'axios'
+
+// import useAuth from '../hooks/useAuth';
 
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
@@ -9,24 +11,29 @@ import Button from '@mui/material/Button';
 
 const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage }) => {
 
-    const { auth } = useAuth()
+    // const { auth } = useAuth()
 
     const [group, setGroup] = useState('')
 
+    axios.defaults.withCredentials = true
+
     const handleConfirm = async () => {
-        const accessToken = auth?.accessToken
+        // const accessToken = auth?.accessToken
 
         const groupObj = {
             groupname: group
         }
 
         try {
-            const res = await api.post('/admin/create_group', groupObj, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                }
-              })
+            const res = await api.post('/admin/create_group', groupObj)
+
+            // const res = await api.post('/admin/create_group', groupObj, {
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${accessToken}`
+            //     }
+            // })
+            
             console.log("Created group")
             setDataChanged(true)
             addFlashMessage("Created group")

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import api from '../api/baseapi'
-import useAuth from '../hooks/useAuth';
+// import useAuth from '../hooks/useAuth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,34 +13,44 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const defaultTheme = createTheme();
 
-const UpdateUserProfilePage = ({ addFlashMessage }) => {
+const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
-  const { auth } = useAuth()
+  // const { auth } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const accessToken = auth?.accessToken
+    // const accessToken = auth?.accessToken
+
+    if (password != confirmPassword) {
+      addFlashMessage("Password does not match Confirm Password.")
+      return
+    }
 
     const data = new FormData(e.currentTarget);
         
     console.log({
-      username: data.get('username'),
+      username: usernameOfLoggedIn,
+      email: data.get('email'),
       password: data.get('password'),
     });
 
     const userData = {
-        username: data.get('username'),
-        password: data.get('password')
+      username: usernameOfLoggedIn,
+      email: data.get('email'),
+      password: data.get('password')
     }
 
     try {
-      const res = await api.patch('/edit_user', userData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      const res = await api.patch('/edit_user', userData)
+
+      // const res = await api.patch('/edit_user', userData, {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }
+      // })
 
       console.log("User Profile updated")
       console.log(res.data)
@@ -110,7 +120,7 @@ const UpdateUserProfilePage = ({ addFlashMessage }) => {
             type="password"
             id="password"
             autoComplete="current-password"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <Button
             type="submit"

@@ -1,23 +1,18 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
 import api from '../api/baseapi'
-import useAuth from '../hooks/useAuth';
+// import useAuth from '../hooks/useAuth';
 import HeaderAdmin from './HeaderAdmin';
+import HeaderUser from './HeaderUser';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
+const Header = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, addFlashMessage, isAdmin }) => {
 
-// use state to check if it user or admin that logs in then show corrent component
-
-const Header = ({ loggedIn, setLoggedIn, addFlashMessage }) => {
-  const { setAuth } = useAuth()
-
-  const isAdmin = () => {
-    
-  }
+  // const { setAuth } = useAuth()
 
   const handleLogout = async () => {
 
@@ -26,7 +21,8 @@ const Header = ({ loggedIn, setLoggedIn, addFlashMessage }) => {
       console.log("Logged Out")
       console.log(res.data)
       setLoggedIn(false)
-      setAuth({})
+      setUsernameOfLoggedIn('')
+      // setAuth({})
       addFlashMessage("User logged out")
     } catch (error) {
       console.log(error)
@@ -41,7 +37,11 @@ const Header = ({ loggedIn, setLoggedIn, addFlashMessage }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             TMS
           </Typography>
-          <HeaderAdmin />
+
+          { isAdmin 
+            ? <HeaderAdmin />
+            : <HeaderUser />}
+          
           <Button color="inherit" onClick={handleLogout}>Logout</Button>
         </Toolbar>
       </AppBar>

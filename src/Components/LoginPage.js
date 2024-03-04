@@ -1,8 +1,9 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
-import useAuth from '../hooks/useAuth'
+// import useAuth from '../hooks/useAuth'
 import { Navigate } from 'react-router-dom'
 import api from '../api/baseapi'
+// import Cookies from 'js-cookie'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,23 +13,25 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+// import axios from 'axios';
 
 const defaultTheme = createTheme();
 
 
-const LoginPage = ({ loggedIn, setLoggedIn }) => {
+const LoginPage = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, setIsAdmin }) => {
     const errRef = useRef();
 
-    const { setAuth } = useAuth()
+    // const { setAuth } = useAuth()
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errMsg, setErrMsg] = useState('');
-    // const [loggedIn, setLoggedIn] = useState(false); 
 
     useEffect(() => {
         setErrMsg('');
     }, [username, password])
+
+    // axios.defaults.withCredentials = true
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -48,14 +51,22 @@ const LoginPage = ({ loggedIn, setLoggedIn }) => {
             const res = await api.post('/auth/login', userData)
             console.log("User logged in")
             console.log(res.data)
-            const accessToken = res?.data?.accessToken
-            const groups = res?.data?.others.groups
-            setAuth({ username, password, groups, accessToken })
+
+            // const accessToken = res?.data?.accessToken
+            // const accessToken = Cookies.get('jwt')
+            // console.log("accesstoken frontend: " + accessToken)
+            // const groups = res?.data?.others.groups
+            // setAuth({ username, password, groups, accessToken })
+            
+            setUsernameOfLoggedIn(res?.data?.others.username)
+            setIsAdmin(res?.data?.isAdmin)
+
             setUsername('')
             setPassword('')
             setLoggedIn(true)
 
         } catch (err) {
+            console.log(err)
             console.log(err.response.data.message)
             console.log(err.response.status)
             console.log(err.response.headers)

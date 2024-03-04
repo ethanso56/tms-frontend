@@ -9,8 +9,9 @@ import { Routes, Route } from 'react-router-dom'
 
 const App = () => {
   const [flashMessages, setFlashMessages] = useState([])
+  const [usernameOfLoggedIn, setUsernameOfLoggedIn] = useState('')
   const [loggedIn, setLoggedIn] = useState(false); 
-  const [loggedInUserGroups, setLoggedInUserGroups] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const addFlashMessage = (msg) => {
     setFlashMessages(prev => prev.concat(msg))
@@ -18,15 +19,15 @@ const App = () => {
 
   return (
     <div>
-        <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} addFlashMessage={addFlashMessage} />
+        <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} addFlashMessage={addFlashMessage} isAdmin={isAdmin} />
         <FlashMessages messages={flashMessages} />
 
         <Routes>
-            <Route path="/login" element={<LoginPage loggedIn={loggedIn} setLoggedIn={setLoggedIn} />} />
+            <Route path="/login" element={<LoginPage setUsernameOfLoggedIn={setUsernameOfLoggedIn} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setIsAdmin={setIsAdmin} />} />
     
             <Route exact path="/" element={<HomePage loggedIn={loggedIn} />} />
            
-            <Route path="/user/edit_user" element={<UpdateUserProfilePage addFlashMessage={addFlashMessage} />} />
+            <Route path="/user/edit_user" element={<UpdateUserProfilePage usernameOfLoggedIn={usernameOfLoggedIn} addFlashMessage={addFlashMessage} />} />
 
             <Route path="/admin/all_users" element={<AdminUserManagementPage addFlashMessage={addFlashMessage} />} />
         
