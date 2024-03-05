@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import StateContext from '../context/StateContext'
 import { Navigate } from 'react-router-dom'
 
 const HomePage = ({ loggedIn }) => {
+  const appState = useContext(StateContext)
+
   return (
-    loggedIn ? <main /> : <Navigate to="/login" />
+    appState.loggedIn ? <main /> : <Navigate to="/login" />
   )
 }
 

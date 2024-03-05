@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom';
 import api from '../api/baseapi'
 import axios from 'axios'
-
+import DispatchContext from '../context/DispatchContext';
 // import useAuth from '../hooks/useAuth';
 import AddUser from './AddUser';
 import CreateGroup from './CreateGroup';
@@ -17,8 +18,10 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
+const AdminUserManagementPage = () => {
 
-const AdminUserManagementPage = ({ addFlashMessage }) => {
+  const navigate = useNavigate()
+  const appDispatch = useContext(DispatchContext)
 
   const [userData, setUserData] = useState(null);
   const [groupData, setGroupData] = useState(null)
@@ -104,7 +107,10 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       //   }
       // })
 
-      addFlashMessage("Edited user status")
+      // addFlashMessage("Edited user status")
+
+      appDispatch({ type: "flashMessage", value: "Edited user status" })
+
       setDataChanged(true)
       console.log("edited user")
       console.log(res.data)
@@ -113,9 +119,20 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       console.log(err.response.status)
       console.log(err.response.headers)
       if (!err?.response) {
-        addFlashMessage('No Server Response')
+        // addFlashMessage('No Server Response')
+        appDispatch({ type: "flashMessage", value: "No Server Response" })
+
+      } else if (err.response?.status === 401) {
+        appDispatch({ type: "flashMessage", value: "Unauthorised" })
+
+        // set to logout
+        appDispatch({ type: "logout" })
+        appDispatch({ type: "setIsAdmin", value: false })
+        appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+        navigate('/login')
       } else {
-        addFlashMessage("Error editing user status")
+        // addFlashMessage("Error editing user status")
+        appDispatch({ type: "flashMessage", value: "Error editing user status" })
       }   
     }
   }
@@ -160,11 +177,14 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       //   }
       // })
 
-      addFlashMessage("Edited user")
+      // addFlashMessage("Edited user")
+      appDispatch({ type: "flashMessage", value: "Edited user" })
+
       setDataChanged(true)
       setPassword('')
       setEmail('')
       setGroups('')
+
       console.log("edited user")
       console.log(res.data)
       
@@ -177,39 +197,36 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       console.log(err.response.data.message)
       console.log(err.response.status)
       console.log(err.response.headers)
+      
       if (!err?.response) {
-        addFlashMessage('No Server Response')
-      }   else if (err.response?.status === 409) {
-          addFlashMessage("Password or Email does not meet validation.")
-      }   else {
-          addFlashMessage("Error editing user")
+        // addFlashMessage('No Server Response')
+        appDispatch({ type: "flashMessage", value: "No Server Response" })
+
+      } else if (err.response?.status === 409) {
+          // addFlashMessage("Password or Email does not meet validation.")
+        appDispatch({ type: "flashMessage", value: "Password or Email does not meet validation" })
+
+      } else if (err.response?.status === 401) {
+        appDispatch({ type: "flashMessage", value: "Unauthorised" })
+
+        // set to logout
+        appDispatch({ type: "logout" })
+        appDispatch({ type: "setIsAdmin", value: false })
+        appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+        navigate('/login')
+      } else {
+          // addFlashMessage("Error editing user")
+        appDispatch({ type: "flashMessage", value: "Error editing user" })
       }   
     }
   }
 
   const handleSelectedGroups = (e, groupArr) => {
-    // value is an array of groupnames
+    // groupArr is an array of groupnames
     console.log(groupArr)
     const groupNames = groupArr.map(group => group.groupname)
     setGroups(groupNames.join(', '))
   }
-
-  // const handleDefaultEmailValue = (email) => {
-  //   setEmail(email)
-  //   return email
-  // }
-
-  // const handleDefaultGroupsValue = (groups) => {
-  //   setGroups(groups)
-  //   return (groups.split(',').map(groupName => {
-  //     return { groupname: groupName }
-  //   }))
-  // }
-
-  // const setDefaultEmailGroupsVals = (email, groups) => {
-  //   setEmail(email)
-  //   setGroups(groups)
-  // }
 
   const handleAddUser = () => {
     setAddUser(true)
@@ -239,8 +256,8 @@ const AdminUserManagementPage = ({ addFlashMessage }) => {
       >
         <h1>User Management</h1>
         <div>
-            {addUser && <AddUser setDataChanged={setDataChanged} handleCancelAddUser={handleCancelAddUser} addFlashMessage={addFlashMessage} />}
-            {createGroup && <CreateGroup setDataChanged={setDataChanged} handleCancelCreateGroup={handleCancelCreateGroup} addFlashMessage={addFlashMessage} />}
+            {addUser && <AddUser allGroups={groupData} setDataChanged={setDataChanged} handleCancelAddUser={handleCancelAddUser} />}
+            {createGroup && <CreateGroup setDataChanged={setDataChanged} handleCancelCreateGroup={handleCancelCreateGroup} />}
             {!addUser && !createGroup && (
                 <div>
                     <Button color="primary" onClick={handleAddUser}>Add User</Button>

@@ -5,7 +5,7 @@ function FlashMessages({ messages }) {
     <div className="floating-alerts">
       {messages.map((msg, index) => {
         return (
-          <div key={index} className="flash-message">
+          <div key={index} className="alert alert-success text-center floating-alert shadow-sm">
             {msg}
           </div>
         )

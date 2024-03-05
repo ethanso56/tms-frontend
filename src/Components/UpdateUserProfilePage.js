@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import api from '../api/baseapi'
+import StateContext from '../context/StateContext';
+import DispatchContext from '../context/DispatchContext';
 // import useAuth from '../hooks/useAuth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -13,7 +15,10 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const defaultTheme = createTheme();
 
-const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
+const UpdateUserProfilePage = () => {
+  const appState = useContext(StateContext)
+  const appDispatch = useContext(DispatchContext)
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -25,26 +30,27 @@ const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
     // const accessToken = auth?.accessToken
 
     if (password != confirmPassword) {
-      addFlashMessage("Password does not match Confirm Password.")
+      // addFlashMessage("Password does not match Confirm Password.")
+      appDispatch({ type: "flashMessage", value: "Password does not match Confirm Password" })
       return
     }
 
     const data = new FormData(e.currentTarget);
         
     console.log({
-      username: usernameOfLoggedIn,
+      username: appState.usernameOfLoggedIn,
       email: data.get('email'),
       password: data.get('password'),
     });
 
     const userData = {
-      username: usernameOfLoggedIn,
+      username: appState.usernameOfLoggedIn,
       email: data.get('email'),
       password: data.get('password')
     }
 
     try {
-      const res = await api.patch('/edit_user', userData)
+      const res = await api.patch('/user/edit_user', userData)
 
       // const res = await api.patch('/edit_user', userData, {
       //   headers: {
@@ -54,6 +60,13 @@ const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
 
       console.log("User Profile updated")
       console.log(res.data)
+
+      // addFlashMessage("User Profile updated")
+      // setEmailOfLoggedIn(email)
+
+      appDispatch({ type: "flashMessage", value: "User Profile updated" })
+      appDispatch({ type: "setUsernameOfLoggedIn", value: email })
+
       setEmail('')
       setPassword('')
     } catch (err) {
@@ -61,11 +74,17 @@ const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
       console.log(err.response.status)
       console.log(err.response.headers)
       if (!err?.response) {
-        addFlashMessage('No Server Response')
-      }   else if (err.response?.status === 409) {
-        addFlashMessage("Password or Email does not meet validation.")
-      }   else {
-        addFlashMessage("Error editing user")
+        // addFlashMessage('No Server Response')
+        appDispatch({ type: "flashMessage", value: "No Server Response" })
+
+      } else if (err.response?.status === 409) {
+        // addFlashMessage("Password or Email does not meet validation.")
+        appDispatch({ type: "flashMessage", value: "Password or Email does not meet validation" })
+
+      } else {
+        // addFlashMessage("Error editing user")
+        appDispatch({ type: "flashMessage", value: "Error editing user" })
+
       }   
     }
   }
@@ -98,6 +117,7 @@ const UpdateUserProfilePage = ({ usernameOfLoggedIn, addFlashMessage }) => {
             name="email"
             autoComplete="email"
             autoFocus 
+            defaultValue={appState.emailOfLoggedIn}
             onChange={(e) => setEmail(e.target.value)}
           />
           <TextField

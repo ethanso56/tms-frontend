@@ -1,5 +1,7 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import DispatchContext from '../context/DispatchContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/baseapi'
 import axios from 'axios'
 
@@ -9,9 +11,12 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
-const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage }) => {
+const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
 
     // const { auth } = useAuth()
+    const appDispatch = useContext(DispatchContext)
+
+    const navigate = useNavigate()
 
     const [group, setGroup] = useState('')
 
@@ -19,6 +24,11 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage 
 
     const handleConfirm = async () => {
         // const accessToken = auth?.accessToken
+
+        if (group === '') {
+            appDispatch({ type: "flashMessage", value: "Groupname cannot be empty" })
+            return 
+        }
 
         const groupObj = {
             groupname: group
@@ -36,7 +46,10 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage 
             
             console.log("Created group")
             setDataChanged(true)
-            addFlashMessage("Created group")
+
+            // addFlashMessage("Created group")
+            appDispatch({ type: "flashMessage", value: "Created group" })
+
             handleCancelCreateGroup()
             console.log(res.data)
             setGroup('')
@@ -46,11 +59,26 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage 
             console.log(err.response.headers)
 
             if (!err?.response) {
-                addFlashMessage('No Server Response')
+                // addFlashMessage('No Server Response')
+                appDispatch({ type: "flashMessage", value: "No Server Response" })
+
             }   else if (err.response?.status === 409) {
-                addFlashMessage("Groupname cannot be more than 50 characters.")
+                // addFlashMessage("Groupname cannot be more than 50 characters.")
+                appDispatch({ type: "flashMessage", value: "Groupname cannot be more than 50 characters" })
+
+            }   else if (err.response?.status === 401) {
+                // addFlashMessage("Unauthorised.")
+                appDispatch({ type: "flashMessage", value: "Unauthorised" })
+
+                // set to logout
+                appDispatch({ type: "logout" })
+                appDispatch({ type: "setIsAdmin", value: false })
+                appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+                navigate('/login')
             }   else {
-                addFlashMessage("Error creating group")
+                // addFlashMessage("Error creating group")
+                appDispatch({ type: "flashMessage", value: "Error creating group" })
+
             }   
         }     
     }
@@ -60,6 +88,7 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup, addFlashMessage 
         <Grid item xs={4}>
             <TextField
                  margin="normal"
+                 required
                  name="group"
                  label="Group name"
                  type="text"

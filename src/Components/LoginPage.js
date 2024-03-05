@@ -1,9 +1,9 @@
 import React from 'react'
-import { useState, useEffect, useRef } from 'react'
-// import useAuth from '../hooks/useAuth'
+import { useState, useEffect, useContext } from 'react'
+import StateContext from '../context/StateContext'
+import DispatchContext from '../context/DispatchContext'
 import { Navigate } from 'react-router-dom'
 import api from '../api/baseapi'
-// import Cookies from 'js-cookie'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,25 +13,16 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import axios from 'axios';
 
 const defaultTheme = createTheme();
 
+const LoginPage = () => {
 
-const LoginPage = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, setIsAdmin }) => {
-    const errRef = useRef();
-
-    // const { setAuth } = useAuth()
+    const appState = useContext(StateContext)
+    const appDispatch = useContext(DispatchContext)
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [errMsg, setErrMsg] = useState('');
-
-    useEffect(() => {
-        setErrMsg('');
-    }, [username, password])
-
-    // axios.defaults.withCredentials = true
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -52,18 +43,14 @@ const LoginPage = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, setIsAdmin })
             console.log("User logged in")
             console.log(res.data)
 
-            // const accessToken = res?.data?.accessToken
-            // const accessToken = Cookies.get('jwt')
-            // console.log("accesstoken frontend: " + accessToken)
-            // const groups = res?.data?.others.groups
-            // setAuth({ username, password, groups, accessToken })
-            
-            setUsernameOfLoggedIn(res?.data?.others.username)
-            setIsAdmin(res?.data?.isAdmin)
+            appDispatch({ type: "login" })
+            appDispatch({ type: "setIsAdmin", value: res?.data?.isAdmin })
+            appDispatch({ type: "setUsernameOfLoggedIn", value: res?.data?.others.email })
+            appDispatch({ type: "setEmailOfLoggedIn", value: res?.data?.others.email })
+            appDispatch({ type: "flashMessage", value: "User logged in" })
 
             setUsername('')
             setPassword('')
-            setLoggedIn(true)
 
         } catch (err) {
             console.log(err)
@@ -71,21 +58,22 @@ const LoginPage = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, setIsAdmin })
             console.log(err.response.status)
             console.log(err.response.headers)
             if (!err?.response) {
-                setErrMsg('No Server Response');
+                appDispatch({ type: "flashMessage", value: "No Server Response" })
             } else if (err.response?.status === 404) {
-                setErrMsg('User not found');
+                appDispatch({ type: "flashMessage", value: "User not found" })
             } else if (err.response?.status === 400) {
-                setErrMsg('Wrong password');
+                appDispatch({ type: "flashMessage", value: "Wrong password" })
+            } else if (err.response?.status === 401) {
+                appDispatch({ type: "flashMessage", value: "User has been disabled" })
             } else {
-                setErrMsg('Login Failed');
+                appDispatch({ type: "flashMessage", value: "Login Failed" })
             }
-            errRef.current.focus();
         }
       };
     
 
   return (
-    loggedIn ? <Navigate to="/" /> :
+    appState.loggedIn ? <Navigate to="/" /> :
     <ThemeProvider theme={defaultTheme}>
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -100,7 +88,6 @@ const LoginPage = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, setIsAdmin })
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
-        <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
         <Typography component="h1" variant="h5">
           Log in
         </Typography>

@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Navigate } from 'react-router-dom'
 import api from '../api/baseapi'
+import StateContext from '../context/StateContext';
+import DispatchContext from '../context/DispatchContext';
 // import useAuth from '../hooks/useAuth';
 import HeaderAdmin from './HeaderAdmin';
 import HeaderUser from './HeaderUser';
@@ -10,9 +12,11 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
-const Header = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, addFlashMessage, isAdmin }) => {
+const Header = () => {
 
   // const { setAuth } = useAuth()
+  const appState = useContext(StateContext)
+  const appDispatch = useContext(DispatchContext)
 
   const handleLogout = async () => {
 
@@ -20,17 +24,25 @@ const Header = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, addFlashMessage,
       const res = await api.post('/auth/logout')
       console.log("Logged Out")
       console.log(res.data)
-      setLoggedIn(false)
-      setUsernameOfLoggedIn('')
+
+      // setLoggedIn(false)
+      // setIsAdmin(false)
+      // setUsernameOfLoggedIn('')
       // setAuth({})
-      addFlashMessage("User logged out")
+      // addFlashMessage("User logged out")
+
+      appDispatch({ type: "logout" })
+      appDispatch({ type: "setIsAdmin", value: false })
+      appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+      appDispatch({ type: "flashMessage", value: "User logged out" })
+
     } catch (error) {
       console.log(error)
     }
   }
 
   return (
-    loggedIn ? 
+    appState.loggedIn ? 
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
@@ -38,7 +50,7 @@ const Header = ({ setUsernameOfLoggedIn, loggedIn, setLoggedIn, addFlashMessage,
             TMS
           </Typography>
 
-          { isAdmin 
+          { appState.isAdmin 
             ? <HeaderAdmin />
             : <HeaderUser />}
           
