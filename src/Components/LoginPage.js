@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect, useContext } from 'react'
 import StateContext from '../context/StateContext'
 import DispatchContext from '../context/DispatchContext'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import api from '../api/baseapi'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -18,11 +18,41 @@ const defaultTheme = createTheme();
 
 const LoginPage = () => {
 
+    const navigate = useNavigate()
+
     const appState = useContext(StateContext)
     const appDispatch = useContext(DispatchContext)
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
+    useEffect(() => {
+
+      const verifyUserLoggedIn = async () => {
+        try {
+          const res = await api.post('/auth/verifyuserloggedin')
+
+          console.log("Checking user logged in")
+          console.log(res.data)
+
+          if (res.data.isAdmin) {
+            appDispatch({ type: "setIsAdmin", value: res?.data?.isAdmin })
+          }
+
+          if (res.data.isLoggedIn) {
+            appDispatch({ type: "login" })
+            appDispatch({ type: "setUsernameOfLoggedIn", value: res?.data?.username })
+            
+            // navigate to prev page
+            navigate(-1)
+          } 
+
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      verifyUserLoggedIn()
+    }, [])
 
     const handleSubmit = async (event) => {
         event.preventDefault();

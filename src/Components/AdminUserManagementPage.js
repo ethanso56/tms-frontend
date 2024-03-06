@@ -137,7 +137,7 @@ const AdminUserManagementPage = () => {
       console.log(err.response.data.message)
       console.log(err.response.status)
       console.log(err.response.headers)
-      
+
       if (!err?.response) {
         appDispatch({ type: "flashMessage", value: "No Server Response" })
       } else if (err.response?.status === 401) {
@@ -242,7 +242,7 @@ const AdminUserManagementPage = () => {
     // groupArr is an array of groupnames
     console.log(groupArr)
     const groupNames = groupArr.map(group => group.groupname)
-    setGroups(groupNames.join(', '))
+    setGroups(groupNames.join(','))
   }
 
   const handleAddUser = () => {

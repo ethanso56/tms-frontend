@@ -20,7 +20,7 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
 
     const handleConfirm = async () => {
 
-        if (group === '') {
+        if (group === '' || group === " ") {
             appDispatch({ type: "flashMessage", value: "Groupname cannot be empty" })
             return 
         }
@@ -47,9 +47,11 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
 
             if (!err?.response) {
                 appDispatch({ type: "flashMessage", value: "No Server Response" })
-            }   else if (err.response?.status === 409) {
+            } else if (err.response?.status === 409) {
                 appDispatch({ type: "flashMessage", value: "Groupname cannot be more than 50 characters" })
-            }   else if (err.response?.status === 401) {
+            } else if (err.response?.status === 400) {
+                appDispatch({ type: "flashMessage", value: "Group already exists" })
+            } else if (err.response?.status === 401) {
                 appDispatch({ type: "flashMessage", value: "Unauthorised" })
 
                 // set to logout
@@ -57,7 +59,7 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
                 appDispatch({ type: "setIsAdmin", value: false })
                 appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
                 navigate('/login')
-            }   else {
+            } else {
                 appDispatch({ type: "flashMessage", value: "Error creating group" })
             }   
         }     

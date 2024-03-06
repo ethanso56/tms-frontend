@@ -81,7 +81,7 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
         // groupArr is an array of groupnames
         console.log(groupArr)
         const groupNames = groupArr.map(group => group.groupname)
-        setGroups(groupNames.join(', '))
+        setGroups(groupNames.join(','))
       }
 
     return (
