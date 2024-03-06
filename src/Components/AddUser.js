@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/baseapi'
 import axios, { all } from 'axios'
 import DispatchContext from '../context/DispatchContext';
-// import useAuth from '../hooks/useAuth';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,7 +15,6 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
     const navigate = useNavigate()
     const appDispatch = useContext(DispatchContext)
 
-    // const { auth } = useAuth()
     axios.defaults.withCredentials = true
 
     const [username, setUsername] = useState('')
@@ -26,7 +24,11 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
     const [status, setStatus] = useState(true)
 
     const handleConfirm = async () => {
-        // const accessToken = auth?.accessToken
+
+        if (username == "" || password == "") {
+            appDispatch({ type: "flashMessage", value: "Username and Password cannot be empty" })
+            return
+        }
 
         const userObj = {
             username: username,
@@ -39,16 +41,9 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
         try {
             const res = await api.post('/admin/create_User', userObj)
 
-            // const res = await api.post('/admin/create_User', userObj, {
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${accessToken}`
-            //     }
-            // })
             console.log("Created user")
             console.log(res.data)
 
-            // addFlashMessage("Created user")
             appDispatch({ type: "flashMessage", value: "Created user" })
 
             setDataChanged(true)
@@ -63,14 +58,12 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
             console.log(err.response.status)
             console.log(err.response.headers)
             if (!err?.response) {
-                // addFlashMessage('No Server Response')
                 appDispatch({ type: "flashMessage", value: "No Server Response" })
-
-            }   else if (err.response?.status === 409) {
-                // addFlashMessage("Username or Password or Email does not meet validation.")
-                appDispatch({ type: "flashMessage", value: "Username or Password or Email does not meet validation" })
-
-        }   else if (err.response?.status === 401) {
+            }  else if (err.response?.status === 409) {
+                appDispatch({ type: "flashMessage", value: "Username or Email does not meet validation" })
+            }  else if (err.response?.status === 400) {
+                appDispatch({ type: "flashMessage", value: "Password must be between 8 to 10 characters and must contain at least one alphabet, number and special character" })
+            }  else if (err.response?.status === 401) {
                 appDispatch({ type: "flashMessage", value: "Unauthorised" })
 
                 // set to logout
@@ -79,7 +72,6 @@ const AddUser = ({ allGroups, setDataChanged, handleCancelAddUser }) => {
                 appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
                 navigate('/login')
             } else {
-                // addFlashMessage("Error creating user")
                 appDispatch({ type: "flashMessage", value: "Error creating user" })
             }   
         }

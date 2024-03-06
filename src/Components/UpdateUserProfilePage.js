@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react'
 import api from '../api/baseapi'
 import StateContext from '../context/StateContext';
 import DispatchContext from '../context/DispatchContext';
-// import useAuth from '../hooks/useAuth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -23,14 +22,10 @@ const UpdateUserProfilePage = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  // const { auth } = useAuth()
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // const accessToken = auth?.accessToken
 
     if (password != confirmPassword) {
-      // addFlashMessage("Password does not match Confirm Password.")
       appDispatch({ type: "flashMessage", value: "Password does not match Confirm Password" })
       return
     }
@@ -52,20 +47,11 @@ const UpdateUserProfilePage = () => {
     try {
       const res = await api.patch('/user/edit_user', userData)
 
-      // const res = await api.patch('/edit_user', userData, {
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`
-      //   }
-      // })
-
       console.log("User Profile updated")
       console.log(res.data)
 
-      // addFlashMessage("User Profile updated")
-      // setEmailOfLoggedIn(email)
-
       appDispatch({ type: "flashMessage", value: "User Profile updated" })
-      appDispatch({ type: "setUsernameOfLoggedIn", value: email })
+      appDispatch({ type: "setEmailOfLoggedIn", value: email })
 
       setEmail('')
       setPassword('')
@@ -74,17 +60,11 @@ const UpdateUserProfilePage = () => {
       console.log(err.response.status)
       console.log(err.response.headers)
       if (!err?.response) {
-        // addFlashMessage('No Server Response')
         appDispatch({ type: "flashMessage", value: "No Server Response" })
-
       } else if (err.response?.status === 409) {
-        // addFlashMessage("Password or Email does not meet validation.")
         appDispatch({ type: "flashMessage", value: "Password or Email does not meet validation" })
-
       } else {
-        // addFlashMessage("Error editing user")
         appDispatch({ type: "flashMessage", value: "Error editing user" })
-
       }   
     }
   }
@@ -138,7 +118,7 @@ const UpdateUserProfilePage = () => {
             name="password"
             label="Confirm Password"
             type="password"
-            id="password"
+            id="confirmpassword"
             autoComplete="current-password"
             onChange={(e) => setConfirmPassword(e.target.value)}
           />

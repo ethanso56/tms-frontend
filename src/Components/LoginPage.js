@@ -45,10 +45,10 @@ const LoginPage = () => {
 
             appDispatch({ type: "login" })
             appDispatch({ type: "setIsAdmin", value: res?.data?.isAdmin })
-            appDispatch({ type: "setUsernameOfLoggedIn", value: res?.data?.others.email })
+            appDispatch({ type: "setUsernameOfLoggedIn", value: res?.data?.others.username })
             appDispatch({ type: "setEmailOfLoggedIn", value: res?.data?.others.email })
             appDispatch({ type: "flashMessage", value: "User logged in" })
-
+   
             setUsername('')
             setPassword('')
 
@@ -70,7 +70,6 @@ const LoginPage = () => {
             }
         }
       };
-    
 
   return (
     appState.loggedIn ? <Navigate to="/" /> :

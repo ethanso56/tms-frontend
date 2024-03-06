@@ -73,6 +73,25 @@ const AdminUserManagementPage = () => {
       console.log(err.response.data.message)
       console.log(err.response.status)
       console.log(err.response.headers)
+
+      if (!err?.response) {
+        // addFlashMessage('No Server Response')
+        appDispatch({ type: "flashMessage", value: "No Server Response" })
+
+    }  else if (err.response?.status === 401) {
+        // addFlashMessage("Unauthorised.")
+        appDispatch({ type: "flashMessage", value: "Unauthorised" })
+
+        // set to logout
+        appDispatch({ type: "logout" })
+        appDispatch({ type: "setIsAdmin", value: false })
+        appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+        navigate('/login')
+    }   else {
+        // addFlashMessage("Error creating group")
+        appDispatch({ type: "flashMessage", value: "Error creating group" })
+
+    }   
     }
   }
 
@@ -118,10 +137,9 @@ const AdminUserManagementPage = () => {
       console.log(err.response.data.message)
       console.log(err.response.status)
       console.log(err.response.headers)
+      
       if (!err?.response) {
-        // addFlashMessage('No Server Response')
         appDispatch({ type: "flashMessage", value: "No Server Response" })
-
       } else if (err.response?.status === 401) {
         appDispatch({ type: "flashMessage", value: "Unauthorised" })
 
@@ -131,7 +149,6 @@ const AdminUserManagementPage = () => {
         appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
         navigate('/login')
       } else {
-        // addFlashMessage("Error editing user status")
         appDispatch({ type: "flashMessage", value: "Error editing user status" })
       }   
     }

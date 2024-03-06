@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom'
 import api from '../api/baseapi'
 import StateContext from '../context/StateContext';
 import DispatchContext from '../context/DispatchContext';
-// import useAuth from '../hooks/useAuth';
 import HeaderAdmin from './HeaderAdmin';
 import HeaderUser from './HeaderUser';
 import AppBar from '@mui/material/AppBar';
@@ -14,7 +13,6 @@ import Button from '@mui/material/Button';
 
 const Header = () => {
 
-  // const { setAuth } = useAuth()
   const appState = useContext(StateContext)
   const appDispatch = useContext(DispatchContext)
 
@@ -25,15 +23,10 @@ const Header = () => {
       console.log("Logged Out")
       console.log(res.data)
 
-      // setLoggedIn(false)
-      // setIsAdmin(false)
-      // setUsernameOfLoggedIn('')
-      // setAuth({})
-      // addFlashMessage("User logged out")
-
       appDispatch({ type: "logout" })
       appDispatch({ type: "setIsAdmin", value: false })
       appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
+      appDispatch({ type: "setEmailOfLoggedIn", value: "" })
       appDispatch({ type: "flashMessage", value: "User logged out" })
 
     } catch (error) {

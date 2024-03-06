@@ -5,17 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/baseapi'
 import axios from 'axios'
 
-// import useAuth from '../hooks/useAuth';
-
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
 const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
 
-    // const { auth } = useAuth()
     const appDispatch = useContext(DispatchContext)
-
     const navigate = useNavigate()
 
     const [group, setGroup] = useState('')
@@ -23,7 +19,6 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
     axios.defaults.withCredentials = true
 
     const handleConfirm = async () => {
-        // const accessToken = auth?.accessToken
 
         if (group === '') {
             appDispatch({ type: "flashMessage", value: "Groupname cannot be empty" })
@@ -36,18 +31,10 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
 
         try {
             const res = await api.post('/admin/create_group', groupObj)
-
-            // const res = await api.post('/admin/create_group', groupObj, {
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${accessToken}`
-            //     }
-            // })
             
             console.log("Created group")
             setDataChanged(true)
 
-            // addFlashMessage("Created group")
             appDispatch({ type: "flashMessage", value: "Created group" })
 
             handleCancelCreateGroup()
@@ -59,15 +46,10 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
             console.log(err.response.headers)
 
             if (!err?.response) {
-                // addFlashMessage('No Server Response')
                 appDispatch({ type: "flashMessage", value: "No Server Response" })
-
             }   else if (err.response?.status === 409) {
-                // addFlashMessage("Groupname cannot be more than 50 characters.")
                 appDispatch({ type: "flashMessage", value: "Groupname cannot be more than 50 characters" })
-
             }   else if (err.response?.status === 401) {
-                // addFlashMessage("Unauthorised.")
                 appDispatch({ type: "flashMessage", value: "Unauthorised" })
 
                 // set to logout
@@ -76,9 +58,7 @@ const CreateGroup = ({ setDataChanged, handleCancelCreateGroup }) => {
                 appDispatch({ type: "setUsernameOfLoggedIn", value: "" })
                 navigate('/login')
             }   else {
-                // addFlashMessage("Error creating group")
                 appDispatch({ type: "flashMessage", value: "Error creating group" })
-
             }   
         }     
     }

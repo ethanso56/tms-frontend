@@ -6,9 +6,9 @@ const HeaderUser = () => {
   const navigate = useNavigate()
 
   const handleUserProfileButton = () => {
-
     navigate("/user/edit_user")
-}
+  }
+  
   return (
     <div>
         <Button color="inherit">Dashboard</Button>

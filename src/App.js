@@ -14,15 +14,6 @@ import { useImmerReducer } from 'use-immer'
 import { Routes, Route } from 'react-router-dom'
 
 const App = () => {
-  // const [flashMessages, setFlashMessages] = useState([])
-  // const [usernameOfLoggedIn, setUsernameOfLoggedIn] = useState('')
-  // const [emailOfLoggedIn, setEmailOfLoggedIn] = useState('')
-  // const [loggedIn, setLoggedIn] = useState(false); 
-  // const [isAdmin, setIsAdmin] = useState(false)
-
-  // const addFlashMessage = (msg) => {
-  //   setFlashMessages(prev => prev.concat(msg))
-  // }
 
   const initialState = {
     loggedIn: false,
@@ -40,7 +31,8 @@ const App = () => {
       case "logout":
         draft.loggedIn = false
         return
-      case "setUserNameOfLoggedIn":
+      case "setUsernameOfLoggedIn":
+        console.log(action.value)
         draft.usernameOfLoggedIn = action.value
         return
       case "setEmailOfLoggedIn":
@@ -63,15 +55,9 @@ const App = () => {
             <DispatchContext.Provider value={dispatch}>
 
               <FlashMessages messages={state.flashMessages} />
-              {/* <Header setUsernameOfLoggedIn={setUsernameOfLoggedIn} loggedIn={loggedIn} setLoggedIn={setLoggedIn} addFlashMessage={addFlashMessage} isAdmin={isAdmin} setIsAdmin={setIsAdmin} /> */}
               <Header />
 
               <Routes>
-                  {/* <Route path="/login" element={<LoginPage setUsernameOfLoggedIn={setUsernameOfLoggedIn} setEmailOfLoggedIn={setEmailOfLoggedIn} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setIsAdmin={setIsAdmin} addFlashMessage={addFlashMessage} />} />
-                  <Route exact path="/" element={<HomePage loggedIn={loggedIn} />} />               
-                  <Route path="/user/edit_user" element={<UpdateUserProfilePage usernameOfLoggedIn={usernameOfLoggedIn} emailOfLoggedIn={emailOfLoggedIn} setEmailOfLoggedIn={setEmailOfLoggedIn} addFlashMessage={addFlashMessage} />} />
-                  <Route path="/admin/all_users" element={<AdminUserManagementPage addFlashMessage={addFlashMessage} />} /> */}
-
                   <Route path="/login" element={<LoginPage />} />
                   <Route exact path="/" element={<HomePage />} />               
                   <Route path="/user/edit_user" element={<UpdateUserProfilePage />} />
